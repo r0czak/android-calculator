@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Kalkulator</string>
+    <string name="app_name_text">Calculator</string>
+    <string name="button_simple_text">Simple</string>
+    <string name="button_advanced_text">Advanced</string>
+    <string name="button_about_text">About</string>
+    <string name="button_exit_text">Exit</string>
+
+
+</resources>
