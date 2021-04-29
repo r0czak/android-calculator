@@ -5,6 +5,10 @@
     <string name="button_advanced_text">Advanced</string>
     <string name="button_about_text">About</string>
     <string name="button_exit_text">Exit</string>
+    <string name="about_description_text">Calculator app with simple and advanced mode, made for Mobile Applications
+        Programming course on Lodz University of Technology.
+    </string>
+    <string name="about_creator_text">Made by Bartosz Kaczor</string>
 
 
 </resources>
