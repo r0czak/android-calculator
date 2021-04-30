@@ -70,7 +70,7 @@
                     android:layout_height="match_parent" android:id="@+id/buttonDivision" android:layout_weight="1"
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>
             <Button
-                    android:text="Bksp"
+                    android:text="AC"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" android:id="@+id/buttonBskp" android:layout_weight="1"
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>

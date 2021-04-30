@@ -8,7 +8,6 @@
 
     <TextView
 
-            android:text="output"
             android:textSize="16sp"
             app:autoSizeTextType="uniform"
             app:autoSizeMinTextSize="6sp"
@@ -23,7 +22,6 @@
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintBottom_toTopOf="@+id/calculatorDisplayInputId"/>
     <TextView
-            android:text="input"
             android:textSize="50sp"
             app:autoSizeTextType="uniform"
             app:autoSizeMinTextSize="12sp"
@@ -50,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="123sp">
             <Button
-                    android:text="Bksp"
+                    android:text="AC"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent" android:id="@+id/buttonBskp" android:layout_weight="1"
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>

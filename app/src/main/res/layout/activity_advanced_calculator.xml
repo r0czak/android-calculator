@@ -50,9 +50,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="80sp">
             <Button
-                    android:text="Bksp"
+                    android:text="AC"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent" android:id="@+id/buttonBskp" android:layout_weight="1"
+                    android:layout_height="match_parent" android:id="@+id/buttonBskp2" android:layout_weight="1"
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>
             <Button
                     android:text="C"
@@ -63,6 +63,11 @@
                     android:text="+/-"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent" android:id="@+id/buttonNegate" android:layout_weight="1"
+                    android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>
+            <Button
+                    android:text="%"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" android:id="@+id/buttonPercent" android:layout_weight="1"
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>
         </LinearLayout>
         <LinearLayout
