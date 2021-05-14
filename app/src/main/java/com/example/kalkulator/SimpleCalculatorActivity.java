@@ -4,9 +4,10 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.kalkulator.exceptions.IncorrectValueException;
 import com.example.kalkulator.utils.MathOperations;
 import com.example.kalkulator.utils.MathParser;
+
+import java.math.BigDecimal;
 
 public class SimpleCalculatorActivity extends AppCompatActivity {
 
@@ -29,12 +30,20 @@ public class SimpleCalculatorActivity extends AppCompatActivity {
   private Button buttonPlus;
   private Button buttonEquals;
   private Button buttonDecimal;
-  private Button buttonPercent;
 
   private TextView textViewInput;
   private TextView textViewOutput;
 
-  private MathOperations lastOperation;
+  private MathOperations lastOperation = MathOperations.NOTHING;
+
+  private MathParser mathParser = new MathParser();
+
+  //  @Override
+  //  protected void onSaveInstanceState(@NonNull Bundle outState) {
+  //    super.onSaveInstanceState(outState);
+  //
+  //    outState.pu
+  //  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +95,7 @@ public class SimpleCalculatorActivity extends AppCompatActivity {
         v -> {
           setInput("");
           setOutput("");
+          mathParser.clear();
         });
 
     buttonC.setOnClickListener(
@@ -97,66 +107,110 @@ public class SimpleCalculatorActivity extends AppCompatActivity {
 
     buttonNegate.setOnClickListener(
         v -> {
-          if (getOutput().isEmpty()) {
-            setOutput("0");
-          }
-          try {
-            MathParser parser = new MathParser();
-            double value = parser.calculate(getOutput(), getInput(), MathOperations.NEGATE);
-            if (value % 1 == 0) {
-              setInput(Integer.toString((int) value));
-            } else {
-              setInput(Double.toString(value));
-            }
-            lastOperation = MathOperations.NEGATE;
-          } catch (IncorrectValueException e) {
-            e.printStackTrace();
+          String inputValue = getInput();
+          if (inputValue.equals("0")) {
+            setInput("0");
+          } else if (inputValue.isEmpty()) {
+            setInput("");
+          } else if (inputValue.charAt(0) == '-') {
+            setInput(inputValue.substring(1));
+          } else {
+            setInput("-" + inputValue);
           }
         });
+
+    buttonDecimal.setOnClickListener(
+        v -> {
+          if (getInput().isEmpty()) {
+            setInput("0.");
+          } else if (!getInput().contains(".")) {
+            setInput(getInput() + ".");
+          }
+        });
+
+    buttonPlus.setOnClickListener(
+        v -> {
+          addNumberToParser();
+          if (!getOutput().isEmpty() && lastOperation != MathOperations.EQUALS) {
+            lastOperation = MathOperations.ADD;
+          }
+        });
+
+    buttonMinus.setOnClickListener(
+        v -> {
+          if (getInput().isEmpty()) {
+            setInput("-");
+          }
+
+          addNumberToParser();
+          if (!getOutput().isEmpty() && lastOperation != MathOperations.EQUALS) {
+            lastOperation = MathOperations.SUBTRACT;
+          }
+        });
+
+    buttonMulti.setOnClickListener(
+        v -> {
+          addNumberToParser();
+          if (!getOutput().isEmpty() && lastOperation != MathOperations.EQUALS) {
+            lastOperation = MathOperations.MULITPLY;
+          }
+        });
+
     buttonDivision.setOnClickListener(
         v -> {
-          if (getOutput().isEmpty()) {
-            setOutput(getInput());
-            setInput("");
+          addNumberToParser();
+          if (!getOutput().isEmpty() && lastOperation != MathOperations.EQUALS) {
             lastOperation = MathOperations.DIVIDE;
-          } else if (getInput().isEmpty()) {
-            lastOperation = MathOperations.DIVIDE;
-          } else {
-            try {
-              divideValues();
-              lastOperation = MathOperations.DIVIDE;
-            } catch (IncorrectValueException e) {
-              e.printStackTrace();
-            }
           }
         });
+
     buttonEquals.setOnClickListener(
         v -> {
-          switch (lastOperation) {
-            case NEGATE:
-              setOutput(getInput());
-              setInput("");
-              lastOperation = MathOperations.EQUALS;
-            case DIVIDE:
-              try {
-                divideValues();
-                lastOperation = MathOperations.EQUALS;
-              } catch (IncorrectValueException e) {
-                e.printStackTrace();
-              }
-          }
+          addNumberToParser();
+          lastOperation = MathOperations.EQUALS;
+          mathParser.clear();
         });
   }
 
-  private void divideValues() {
-    MathParser parser = new MathParser();
-    double value = parser.calculate(getOutput(), getInput(), MathOperations.DIVIDE);
-    if (value % 1 == 0) {
-      setOutput(Integer.toString((int) value));
+  void addNumberToParser() {
+    String inputValue = getInput();
+    if (!inputValue.isEmpty()) {
+      repairInput();
+      mathParser.addNumber(Double.parseDouble(inputValue));
+
+      double value = mathParser.getOutput();
+      String valueString = new BigDecimal(value).toPlainString();
+
+      if (value % 1 == 0) {
+        setOutput(value + "");
+        // setOutput(String.format("%.0f", value));
+      } else {
+        setOutput(value + "");
+        // setOutput(String.format("%.10f", value));
+      }
       setInput("");
-    } else {
-      setOutput(Double.toString(value));
-      setInput("");
+    }
+  }
+
+  void addOperationToParser() {
+    if (lastOperation == MathOperations.EQUALS) {
+      setOutput("");
+      lastOperation = MathOperations.NOTHING;
+    } else if (lastOperation != MathOperations.NOTHING) {
+      mathParser.addOperation(lastOperation);
+
+      double value = mathParser.getOutput();
+      String valueString = new BigDecimal(value).toPlainString();
+
+      if (value % 1 == 0) {
+        setOutput(value + "");
+        // setOutput(String.format("%.0f", value));
+      } else {
+        setOutput(value + "");
+        // setOutput(String.format("%f", value));
+      }
+
+      lastOperation = MathOperations.NOTHING;
     }
   }
 
@@ -182,8 +236,23 @@ public class SimpleCalculatorActivity extends AppCompatActivity {
           //          if (getInput().charAt(0) == '0' && getInput().length() == 1) {
           //            setInput(button.getText().toString());
           //          } else {
-          setInput(getInput() + button.getText().toString());
+          if (button.getText().toString().equalsIgnoreCase("0") && getInput().equals("0")) {
+            setInput(button.getText().toString());
+          } else {
+            if (getInput().equals("0")) {
+              setInput(button.getText().toString());
+            } else {
+              setInput(getInput() + button.getText().toString());
+            }
+          }
+          addOperationToParser();
           // }
         });
+  }
+
+  void repairInput() {
+    if (getInput().charAt(getInput().length() - 1) == '.') {
+      setInput(getInput().substring(0, getInput().length() - 2));
+    }
   }
 }

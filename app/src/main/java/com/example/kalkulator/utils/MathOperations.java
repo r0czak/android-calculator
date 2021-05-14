@@ -15,5 +15,7 @@ public enum MathOperations {
   SQRT,
   SQUARE_ROOT,
   EXPONENT,
-  LOG
+  LOG,
+  PERCENT,
+  NOTHING
 }
