@@ -1,13 +1,18 @@
 package com.example.kalkulator.utils;
 
+import java.io.Serializable;
 import java.util.Stack;
 
-public class MathParser {
+public class MathParser implements Serializable {
   Stack<Double> output = new Stack<Double>();
   Stack<MathOperations> operations = new Stack<MathOperations>();
 
   public double addNumber(double number) {
-    output.push(number);
+    if (number == -0.0) {
+      output.push(0.0);
+    } else {
+      output.push(number);
+    }
 
     calculate();
 
@@ -50,7 +55,7 @@ public class MathParser {
     }
   }
 
-  double calculateSingleNumberOperation(double number, MathOperations operation) {
+  public double calculateSingleNumberOperation(double number, MathOperations operation) {
     switch (operation) {
       case SIN:
         return Math.sin(number);
@@ -62,20 +67,32 @@ public class MathParser {
         return Math.log(number);
       case LOG:
         return Math.log10(number);
+      case SQUARED:
+        return Math.pow(number, 2);
+      case SQRT:
+        return Math.sqrt(number);
     }
     return 0;
   }
 
   public double getOutput() {
-    return output.peek();
+    if (output.size() > 0) {
+      return output.peek();
+    } else {
+      return 0;
+    }
+  }
+
+  public MathOperations getOperation() {
+    if (operations.size() > 0) {
+      return operations.peek();
+    } else {
+      return MathOperations.NOTHING;
+    }
   }
 
   public void clear() {
     output.clear();
     operations.clear();
-  }
-
-  private boolean checkValue(String value) {
-    return value.matches("-?\\d+(\\.\\d+)?");
   }
 }

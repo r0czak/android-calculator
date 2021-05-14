@@ -3,11 +3,14 @@ package com.example.kalkulator;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.kalkulator.utils.MathOperations;
 import com.example.kalkulator.utils.MathParser;
 
-import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class AdvancedCalculatorActivity extends AppCompatActivity {
 
@@ -47,11 +50,37 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
 
   private MathParser mathParser = new MathParser();
 
+  DecimalFormat decimalFormat = new DecimalFormat("0", new DecimalFormatSymbols(Locale.US));
+
+  @Override
+  protected void onSaveInstanceState(Bundle savedInstanceState) {
+    super.onSaveInstanceState(savedInstanceState);
+
+    savedInstanceState.putString("output", getOutput());
+    savedInstanceState.putString("input", getInput());
+    savedInstanceState.putSerializable("parser", mathParser);
+    savedInstanceState.putSerializable("last_operation", lastOperation);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+
+    if (savedInstanceState != null) {
+      setOutput(savedInstanceState.getString("output"));
+      setInput(savedInstanceState.getString("input"));
+      mathParser = (MathParser) savedInstanceState.getSerializable("parser");
+      lastOperation = (MathOperations) savedInstanceState.getSerializable("last_operation");
+    }
+  }
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_advanced_calculator);
 
+    decimalFormat.setMaximumFractionDigits(10);
+    // decimalFormat.setMaximumIntegerDigits(15);
     initialiseControlls();
     initialiseButtonListeners();
   }
@@ -104,9 +133,12 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
 
     buttonAC.setOnClickListener(
         v -> {
-          setInput("");
-          setOutput("");
-          mathParser.clear();
+          if (!getInput().isEmpty() || !getOutput().isEmpty()) {
+            setInput("");
+            setOutput("");
+            mathParser.clear();
+            lastOperation = MathOperations.NOTHING;
+          }
         });
 
     buttonC.setOnClickListener(
@@ -119,11 +151,11 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
     buttonNegate.setOnClickListener(
         v -> {
           String inputValue = getInput();
-          if (inputValue.equals("0")) {
-            setInput("0");
-          } else if (inputValue.isEmpty()) {
+          if (inputValue.isEmpty()) {
             setInput("");
-          } else if (inputValue.charAt(0) == '-') {
+          } else if (Double.parseDouble(inputValue) == 0) {
+            setInput("0");
+          } else if (inputValue.charAt(0) == '-' && inputValue.length() > 1) {
             setInput(inputValue.substring(1));
           } else {
             setInput("-" + inputValue);
@@ -134,6 +166,7 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
         v -> {
           if (getInput().isEmpty()) {
             setInput("0.");
+            addOperationToParser();
           } else if (!getInput().contains(".")) {
             setInput(getInput() + ".");
           }
@@ -151,11 +184,11 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
         v -> {
           if (getInput().isEmpty()) {
             setInput("-");
-          }
-
-          addNumberToParser();
-          if (!getOutput().isEmpty() && lastOperation != MathOperations.EQUALS) {
-            lastOperation = MathOperations.SUBTRACT;
+          } else {
+            addNumberToParser();
+            if (!getOutput().isEmpty() && lastOperation != MathOperations.EQUALS) {
+              lastOperation = MathOperations.SUBTRACT;
+            }
           }
         });
 
@@ -197,45 +230,122 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
             lastOperation = MathOperations.EXPONENT;
           }
         });
+
+    buttonSin.setOnClickListener(
+        v -> {
+          if (!getInput().isEmpty()) {
+            setInput(
+                decimalFormat.format(
+                    mathParser.calculateSingleNumberOperation(
+                        Double.parseDouble(getInput()), MathOperations.SIN)));
+          }
+        });
+
+    buttonCos.setOnClickListener(
+        v -> {
+          if (!getInput().isEmpty()) {
+            setInput(
+                Double.toString(
+                    mathParser.calculateSingleNumberOperation(
+                        Double.parseDouble(getInput()), MathOperations.COS)));
+          }
+        });
+
+    buttonTan.setOnClickListener(
+        v -> {
+          if (!getInput().isEmpty()) {
+            setInput(
+                decimalFormat.format(
+                    mathParser.calculateSingleNumberOperation(
+                        Double.parseDouble(getInput()), MathOperations.TAN)));
+          }
+        });
+
+    buttonSqrt.setOnClickListener(
+        v -> {
+          if (!getInput().isEmpty()) {
+            if (Double.parseDouble(getInput()) >= 0) {
+              setInput(
+                  decimalFormat.format(
+                      mathParser.calculateSingleNumberOperation(
+                          Double.parseDouble(getInput()), MathOperations.SQRT)));
+            } else {
+              showToastMessage("Value must be equal or greater than 0");
+            }
+          }
+        });
+
+    buttonX2.setOnClickListener(
+        v -> {
+          if (!getInput().isEmpty()) {
+            setInput(
+                decimalFormat.format(
+                    mathParser.calculateSingleNumberOperation(
+                        Double.parseDouble(getInput()), MathOperations.SQUARED)));
+          }
+        });
+
+    buttonLog.setOnClickListener(
+        v -> {
+          if (!getInput().isEmpty()) {
+            if (Double.parseDouble(getInput()) <= 0) {
+              showToastMessage("Value must be greater than 0");
+            } else {
+              setInput(
+                  decimalFormat.format(
+                      mathParser.calculateSingleNumberOperation(
+                          Double.parseDouble(getInput()), MathOperations.LOG)));
+            }
+          }
+        });
+
+    buttonLn.setOnClickListener(
+        v -> {
+          if (!getInput().isEmpty()) {
+            if (Double.parseDouble(getInput()) <= 0) {
+              showToastMessage("Value must be greater than 0");
+            } else {
+              setInput(
+                  decimalFormat.format(
+                      mathParser.calculateSingleNumberOperation(
+                          Double.parseDouble(getInput()), MathOperations.LN)));
+            }
+          }
+        });
   }
 
   void addNumberToParser() {
     String inputValue = getInput();
     if (!inputValue.isEmpty()) {
-      repairInput();
-      mathParser.addNumber(Double.parseDouble(inputValue));
-
-      double value = mathParser.getOutput();
-      String valueString = new BigDecimal(value).toPlainString();
-
-      if (value % 1 == 0) {
-        setOutput(value + "");
-        // setOutput(String.format("%.0f", value));
+      if (Double.parseDouble(inputValue) == 0
+          && mathParser.getOperation() == MathOperations.DIVIDE) {
+        mathParser.clear();
+        setInput("");
+        setOutput("");
+        showToastMessage("Can't divide by 0");
       } else {
-        setOutput(value + "");
-        // setOutput(String.format("%.10f", value));
+        repairInput();
+        mathParser.addNumber(Double.parseDouble(inputValue));
+
+        double value = mathParser.getOutput();
+
+        setOutput(decimalFormat.format(value));
+        setInput("");
       }
-      setInput("");
     }
   }
 
   void addOperationToParser() {
     if (lastOperation == MathOperations.EQUALS) {
       setOutput("");
+      mathParser.clear();
       lastOperation = MathOperations.NOTHING;
     } else if (lastOperation != MathOperations.NOTHING) {
       mathParser.addOperation(lastOperation);
 
       double value = mathParser.getOutput();
-      String valueString = new BigDecimal(value).toPlainString();
 
-      if (value % 1 == 0) {
-        setOutput(value + "");
-        // setOutput(String.format("%.0f", value));
-      } else {
-        setOutput(value + "");
-        // setOutput(String.format("%f", value));
-      }
+      setOutput(decimalFormat.format(value));
 
       lastOperation = MathOperations.NOTHING;
     }
@@ -260,9 +370,6 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
   private void addButtonListener(Button button) {
     button.setOnClickListener(
         v -> {
-          //          if (getInput().charAt(0) == '0' && getInput().length() == 1) {
-          //            setInput(button.getText().toString());
-          //          } else {
           if (button.getText().toString().equalsIgnoreCase("0") && getInput().equals("0")) {
             setInput(button.getText().toString());
           } else {
@@ -273,13 +380,20 @@ public class AdvancedCalculatorActivity extends AppCompatActivity {
             }
           }
           addOperationToParser();
-          // }
         });
   }
 
   void repairInput() {
-    if (getInput().charAt(getInput().length() - 1) == '.') {
-      setInput(getInput().substring(0, getInput().length() - 2));
+    String inputValue = getInput();
+    if (inputValue.charAt(inputValue.length() - 1) == '.') {
+
+      setInput(inputValue.substring(0, inputValue.length() - 2));
+    } else if (inputValue.equals("-") || inputValue.equals("-0") || inputValue.equals("0.0")) {
+      setInput("0");
     }
+  }
+
+  private void showToastMessage(final String msg) {
+    runOnUiThread(() -> Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show());
   }
 }

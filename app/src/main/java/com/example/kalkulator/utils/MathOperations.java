@@ -1,21 +1,21 @@
 package com.example.kalkulator.utils;
 
-public enum MathOperations {
+import java.io.Serializable;
+
+public enum MathOperations implements Serializable {
   ADD,
   SUBTRACT,
-  NEGATE,
   DIVIDE,
   MULITPLY,
   EQUALS,
-  DECIMAL,
   SIN,
   COS,
   TAN,
   LN,
   SQRT,
-  SQUARE_ROOT,
   EXPONENT,
   LOG,
   PERCENT,
-  NOTHING
+  NOTHING,
+  SQUARED
 }

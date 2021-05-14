@@ -82,7 +82,7 @@
             <Button
                     android:text="AC"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" android:id="@+id/buttonBskp" android:layout_weight="1"
+                    android:layout_height="match_parent" android:id="@+id/buttonBskp2" android:layout_weight="1"
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>
         </LinearLayout>
         <LinearLayout
@@ -181,7 +181,7 @@
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp"/>
             <Button
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent" android:id="@+id/buttonBlank" android:layout_weight="1"
+                    android:layout_height="match_parent" android:id="@+id/buttonPercent" android:layout_weight="1"
                     android:background="#000000" android:textColor="#D19E44" android:textSize="30sp" android:text="%"/>
             <Button
                     android:text="0"

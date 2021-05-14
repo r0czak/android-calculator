@@ -137,7 +137,7 @@
             <Button
                     android:text="9"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" android:id="@+id/button9" android:layout_weight="1"
+                    android:layout_height="94dp" android:id="@+id/button9" android:layout_weight="1"
                     android:background="#000000" android:textColor="#EDECE9" android:textSize="30sp"/>
             <Button
                     android:text="/"
